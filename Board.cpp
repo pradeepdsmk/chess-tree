@@ -86,7 +86,7 @@ void Board::printToConsole() {
 
 bool Board::execute(const char* move) {
 	char dstChessman = Board::BLANK, srcChessman = Board::BLANK;
-	int len = strlen(move);
+	size_t len = strlen(move);
 
 	if (len < 4) {
 		return false;
