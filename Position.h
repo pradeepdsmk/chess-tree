@@ -11,8 +11,10 @@ namespace chess {
 	{
 
 		int64_t occupancy;
-		byte white[16];
-		byte black[16];
+		byte whitePieces[16];
+		byte blackPieces[16];
+		byte whitePiecesCount;
+		byte blackPiecesCount;
 
 
 		std::vector<chess::Move*> moves;

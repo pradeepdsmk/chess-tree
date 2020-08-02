@@ -1,48 +1,48 @@
 #include "Position.h"
-#include "Move.h"
-#include <vector>
 
+namespace chess {
 
-void chess::Position::buildTree()
-{
-	if (isCheckMate() || isStaleMate() || isDraw()) {
-		return;
+	void Position::buildTree()
+	{
+		if (isCheckMate() || isStaleMate() || isDraw()) {
+			return;
+		}
+
+		buildMoves();
+
+		for (Move* move : moves) {
+			//move->execute();
+			//move->evaluate();
+		}
+		sortMoves();
+		for (Move* move : moves) {
+			//move->getNextPosition()->buildTree();
+		}
 	}
 
-	buildMoves();
-	
-	for(Move* move: moves) {
-		move->execute();
-		move->evaluate();
+	bool Position::isCheckMate() const
+	{
+		return false;
 	}
-	sortMoves();
-	for(Move* move: moves) {
-		move->getNextPosition()->buildTree();
+
+	bool Position::isStaleMate() const
+	{
+		return false;
 	}
-}
 
-bool chess::Position::isCheckMate() const
-{
-	return false;
-}
+	bool Position::isDraw() const	
+	{
+		return false;
+	}
 
-bool chess::Position::isStaleMate() const
-{
-	return false;
-}
+	void Position::buildMoves()
+	{
+		//Move* move = new Move(new Position(), "e2e4");
+		//moves.push_back(move);
+		// return moves.size();
+	}
 
-bool chess::Position::isDraw() const
-{
-	return false;
-}
-
-void chess::Position::buildMoves() 
-{
-	Move* move = new Move(new Position(), "e2e4");
-	moves.push_back(move);
-	// return moves.size();
-}
-
-void chess::Position::sortMoves() const
-{
+	void Position::sortMoves() const
+	{
+	}
 }

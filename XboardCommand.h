@@ -1,19 +1,20 @@
 #pragma once
+#include <string>
+#include "Engine.h"
 
 namespace chess {
-
 	class XboardCommand;
-	class Engine;
-	typedef bool (XboardCommand::* CommandFunc)(const std::string& input, std::string& output);
 
-	struct Map {
-		std::string name;
-		CommandFunc func;
-	};
+	typedef bool (XboardCommand::* CommandFunc)(const std::string& input, std::string& output);	
 
 	class XboardCommand {
 
-		Map m[45] = {
+		struct CommandFuncMap {
+			std::string name;
+			CommandFunc func;
+		};
+
+		CommandFuncMap m[45] = {
 				{"xboard", &XboardCommand::hXboard},
 				{"protover", &XboardCommand::hProtover},
 				{"accepted", &XboardCommand::hAccepted},

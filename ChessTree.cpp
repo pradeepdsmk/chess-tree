@@ -4,9 +4,7 @@
 
 #include <iostream>
 #include <chrono>
-#include "Board.h"
 #include <Windows.h>
-#include <queue>
 #include "Log.h"
 #include "Engine.h"
 #include "XboardCommand.h"
@@ -20,9 +18,7 @@
 
 typedef std::chrono::high_resolution_clock::time_point Timepoint;
 
-void idea3() {
-
-	std::queue<std::string> log;
+void idea3() {	
 
 	std::string input, output;
 
