@@ -1,16 +1,16 @@
 #pragma once
+
+#include <string>
 #include "Square.h"
 #include "Move.h"
-#include "PieceFactory.h"
 #include "List.h"
-#include "Piece.h"
-#include "MoveFactory.h"
+#include "Destinations.h"
+
 
 #define White true
 #define Black false
 
 namespace chess {
-
 
 	//
 	//           col 0 1 2 3 4 5 6 7
@@ -25,6 +25,10 @@ namespace chess {
 	//       7    1 |_|_|_|_|_|_|_|_|
 	//		         a b c d e f g h
 
+
+	class Square;
+	class Move;
+
 	class Board {
 		
 		Square* square[8][8];
@@ -36,36 +40,24 @@ namespace chess {
 		unsigned char numBlackPawns;
 		
 		static const char* startposFen;
-		List<Piece>* whitePieces;
-		List<Piece>* blackPieces;		
-		List<Move>* movesTable[7][8][8];
-		PieceFactory pieceFactory;
-		MoveFactory moveFactory;
 
-		friend class MoveBuilder;		
+		List<Square>* whitePieceSquares;
+		List<Square>* blackPieceSquares;
+
+		friend class Destinations;
 
 		void clearBoard();
 		void parseFen(const char* fen);
-
-		void buildMoves(Pieces::PieceTypes pieceType, size_t row, size_t col);
-		void buildQueenMoves(size_t row, size_t col);
-		void buildBishopMoves(size_t row, size_t col);
-		void buildKnightMoves(size_t row, size_t col);
-		void buildRookMoves(size_t row, size_t col);
-		void buildWhitePawnMoves(size_t row, size_t col);
-		void buildBlackPawnMoves(size_t row, size_t col);
-
-		
+		bool executeMove(Move* move);
+		Move* findReplyMove();
 
 	public:
 		Board();	
 
-		void newBoard();
-		void setBoard(const char* fen);
-
-		void buildMovesTable();
+		void newboard();
+		void setboard(const char* fen);
+		void usermove(const std::string& input, std::string& output);
 
 		~Board();
-
 	};
 }

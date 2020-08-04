@@ -1,4 +1,6 @@
 #pragma once
+
+#include <string>
 #include "Board.h"
 
 namespace chess {
@@ -9,7 +11,7 @@ namespace chess {
 	public:
 		Engine();
 		~Engine();
-		void onMove(const std::string& input, std::string& output);
-		void newGame();
+		void usermove(const std::string& input, std::string& output);
+		void newboard();
 	};
 }

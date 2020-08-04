@@ -26,11 +26,9 @@ namespace chess {
 	template <class T>
 	struct List {
 		ListNode<T>* nodes;
-		size_t length;
 
 		List<T>() {
 			nodes = nullptr;
-			length = 0;
 		}
 
 		void append(T* _item) {
@@ -47,8 +45,6 @@ namespace chess {
 				ptr->next = node;
 				node->prev = ptr;
 			}
-
-			++length;
 		}
 
 		void remove(ListNode<T>* node) {
@@ -63,15 +59,18 @@ namespace chess {
 			node->prev = nullptr;
 			node->next = nullptr;
 			delete node;
+		}
 
-			--length;
+		void clear() {
+			if (nodes) {
+				delete nodes;
+			}
 		}
 
 		~List() {
 			if (nodes) {
 				delete nodes;
 			}
-			length = 0;
 		}
 	};
 }

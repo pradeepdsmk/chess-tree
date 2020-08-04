@@ -1,4 +1,6 @@
 #pragma once
+
+#include "List.h"
 #include "Move.h"
 
 namespace chess {
@@ -6,9 +8,13 @@ namespace chess {
 	{
 		List<Move>* moves;
 
-	public:
 		MoveFactory();
-		Move* createMove(Pieces::PieceTypes pieceType, Square* srcSquare, Square* dstSquare);
+		static MoveFactory* thisInstance;
+
+		bool parseStr(const char* str, Move* move);
+
+	public:		
+		static Move* createMove(const char* str = nullptr);
 		~MoveFactory();
 	};
 }

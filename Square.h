@@ -1,25 +1,25 @@
 #pragma once
 
-#include "Piece.h"
-#include "Move.h"
-#include "List.h"
+#include <string>
+#include "Destinations.h"
+
 
 namespace chess {	
 
-	class Move;
+	class Destinations;
 
 	class Square
 	{
 	public:
-		char name[3];
-		Piece* piece;
-		Square* adjSquares[8];
+		char piece;
 		unsigned char row;
 		unsigned char col;
 
-		List<Move>* movesTable[7];
+		Destinations* dst;		
 
 		Square(unsigned char _row, unsigned char _col);
+
+		const std::string name();
 
 		~Square();
 	};

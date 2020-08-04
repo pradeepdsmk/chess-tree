@@ -153,28 +153,24 @@
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="ChessTree.cpp" />
+    <ClCompile Include="Destinations.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="Move.cpp" />
-    <ClCompile Include="MoveBuilder.cpp" />
     <ClCompile Include="MoveFactory.cpp" />
-    <ClCompile Include="Piece.cpp" />
-    <ClCompile Include="PieceFactory.cpp" />
     <ClCompile Include="Position.cpp" />
     <ClCompile Include="Square.cpp" />
     <ClCompile Include="XboardCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
+    <ClInclude Include="Destinations.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Move.h" />
-    <ClInclude Include="MoveBuilder.h" />
     <ClInclude Include="MoveFactory.h" />
-    <ClInclude Include="Piece.h" />
-    <ClInclude Include="PieceFactory.h" />
     <ClInclude Include="Pieces.h" />
     <ClInclude Include="Position.h" />
     <ClInclude Include="Square.h" />

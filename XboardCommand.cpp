@@ -38,7 +38,7 @@ namespace chess {
 	bool XboardCommand::hNew(const std::string& input, std::string& output)
 	{
 		//Reset the board to the standard chess starting position. Set White on move. Leave force mode and set the engine to play Black. Associate the engine's clock with Black and the opponent's clock with White. Reset clocks and time controls to the start of a new game. Use wall clock for time measurement. Stop clocks. Do not ponder on this move, even if pondering is on. Remove any search depth limit previously set by the sd command. 
-		engine.newGame();
+		engine.newboard();
 		output = "";
 		return true;
 	}
@@ -378,7 +378,7 @@ namespace chess {
 		//Note that on boards with more than 9 ranks, counting of the ranks starts at 0.
 		//Beginning in protocol version 2, you can use the feature command to select SAN(standard algebraic notation) instead; for example, e4, Nf3, exd5, Bxf7 + , Qxf7#, e8 = Q, O - O, or P@h3.Note that the last form, P@h3, is a extension to the PGN standard's definition of SAN, which does not support bughouse or crazyhouse.
 		//xboard doesn't reliably detect illegal moves, because it does not keep track of castling unavailability due to king or rook moves, or en passant availability. If xboard sends an illegal move, send back an error message so that xboard can retract it and inform the user". 
-		engine.onMove(input, output);
+		engine.usermove(input, output);
 		return true;
 	}
 

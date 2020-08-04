@@ -1,4 +1,5 @@
 #pragma once
+
 #include <queue>
 #include <string>
 
@@ -10,7 +11,7 @@ class Log
 	Log() {
 		int i = 0;
 		i++;
-	} // private empty constructor	
+	} 
 	
 public:
 	static void begin();

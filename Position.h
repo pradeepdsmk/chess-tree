@@ -1,21 +1,19 @@
 #pragma once
+
 #include <vector>
+#include "Move.h"
 
 typedef unsigned char byte;
 
 namespace chess {
 
-	class Move;
-
 	class Position
 	{
-
 		int64_t occupancy;
 		byte whitePieces[16];
 		byte blackPieces[16];
 		byte whitePiecesCount;
 		byte blackPiecesCount;
-
 
 		std::vector<chess::Move*> moves;
 	public:

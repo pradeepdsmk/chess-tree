@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "Square.h"
 
 typedef unsigned char byte;
@@ -7,23 +8,45 @@ typedef unsigned char byte;
 namespace chess {
 
 	class Move
-	{
-		byte flags = 0;
-		static const byte CaptureFlag = 0x1;
-		static const byte CastleFlag = 0x2;
-		static const byte LongCastle = 0x4;
+	{		
 
 	public:
-		Square* srcSquare;
-		Square* dstSquare;
-		Pieces::PieceTypes pieceType;
+		char piece, capturedPiece, promotedTo;
+		unsigned char srcRow, srcCol, dstRow, dstCol;
 
-		Pieces::PieceTypes capturedPieceType;
-		byte moveInfoFlags;
-		char moveStr[8] = { 0 };
+		bool isShortCastle;
+		bool isLongCastle;
+		bool isCapture;
+		bool isEnpassant;
 
-		Move(Pieces::PieceTypes _pieceType, Square* _srcSquare, Square* _dstSquare);
+		Move();
+
+		static inline std::string charToString(const char& c) {
+			std::string s(1, ((c == '\0') ? ' ' : c));
+			return s;
+		}
+
+		static inline std::string boolToString(const bool& c) {
+			std::string s(1, (c ? '1' : '0'));
+			return s;
+		}
+
+		static inline bool isRow(const char& c) {
+			return ((c >= '1') && (c <= '8'));
+		}
+
+		static inline bool isCol(const char& c) {
+			return ((c >= 'a') && (c <= 'h'));
+		}
+
+		static inline unsigned getRow(const char& c) {
+			return (7 - (c - '1'));
+		}
+
+		static inline unsigned getCol(const char& c) {
+			return (c - 'a');
+		}
+
+		std::string toString();
 	};
-
-
 }
