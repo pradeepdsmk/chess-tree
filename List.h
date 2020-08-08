@@ -16,9 +16,6 @@ namespace chess {
 		}
 
 		~ListNode() {
-			if (next) {
-				delete next;
-			}
 		}
 	};
 
@@ -26,9 +23,11 @@ namespace chess {
 	template <class T>
 	struct List {
 		ListNode<T>* nodes;
+		unsigned char length;
 
 		List<T>() {
 			nodes = nullptr;
+			length = 0;
 		}
 
 		void append(T* _item) {
@@ -45,32 +44,73 @@ namespace chess {
 				ptr->next = node;
 				node->prev = ptr;
 			}
+
+			++length;
 		}
 
 		void remove(ListNode<T>* node) {
-			if (node->prev) {
-				node->prev->next = node->next;
-			}
-
 			if (node->next) {
 				node->next->prev = node->prev;
 			}
 
+			if (node->prev) {
+				node->prev->next = node->next;
+			}
+			else {
+				// this is first node
+				nodes = node->next;
+			}
+
 			node->prev = nullptr;
 			node->next = nullptr;
+
 			delete node;
+			node = nullptr;
+
+			--length;
+		}
+
+		void remove(T* item) {
+			ListNode<T>* node = nodes;
+			while (node) {
+				if (node->item == item) {
+					remove(node);
+					break;
+				}
+				node = node->next;
+			}
 		}
 
 		void clear() {
-			if (nodes) {
-				delete nodes;
+			delete nodes;
+			nodes = nullptr;
+
+			length = 0;
+		}
+
+		T* getAt(unsigned char pos) {			
+			if (pos >= length) {
+				return nullptr;
 			}
+						
+			unsigned char i = 0;
+			ListNode<T>* node = nodes;
+			bool found = false;
+			for (i = 0; i < pos; ++i) {
+				node = node->next;
+			}
+			return node->item;
 		}
 
 		~List() {
-			if (nodes) {
-				delete nodes;
+			ListNode<T>* p = nodes;
+			ListNode<T>* q;
+			while (p) {
+				q = p->next;
+				delete p;
+				p = q;
 			}
+			nodes = nullptr;
 		}
 	};
 }
