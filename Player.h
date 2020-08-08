@@ -6,8 +6,8 @@ namespace chess {
 	{
 		Board* board;
 		Color color;
-		List<Square>* mySquares;
-		List<Square>* yourSquares;
+		List<Square>* myPieceSquares;
+		List<Square>* yourPieceSquares;
 
 		const char* myPiecesStr;
 		const char* yourPiecesStr;

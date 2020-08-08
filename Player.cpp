@@ -12,31 +12,30 @@ namespace chess {
 	void Player::init(Color _color) {
 		color = _color;
 		if (color == White) {
-			mySquares = board->whitePieceSquares;
-			yourSquares = board->blackPieceSquares;
+			myPieceSquares = board->whitePieceSquares;
+			yourPieceSquares = board->blackPieceSquares;
 			myPiecesStr = board->whitePiecesStr;
 			yourPiecesStr = board->blackPiecesStr;
 		}
 		else {
-			mySquares = board->blackPieceSquares;
-			yourSquares = board->whitePieceSquares;
+			myPieceSquares = board->blackPieceSquares;
+			yourPieceSquares = board->whitePieceSquares;
 			myPiecesStr = board->blackPiecesStr;
 			yourPiecesStr = board->whitePiecesStr;
 		}
 	}
 
 	Move* Player::bestMove() {	
-		Tree* availableMoves = board->findAvailableMoves(mySquares, yourPiecesStr);
+		Tree* availableMoves = board->findAvailableMoves(myPieceSquares, yourPiecesStr);
 
-		//List<Move>* legalMoves = new List<Move>();
 		const char king = (color == White) ? 'K' : 'k';
 		unsigned short numMoves = 0;
 		for (TreeNode* p1 = availableMoves->tree->right;p1; p1 = p1->right) {
 			Move* move = p1->move;
-			board->executeMove(move);
+			board->executeMove(move, myPieceSquares, yourPieceSquares);
 
 			bool legal = true;
-			Tree* opponentMoves = board->findAvailableMoves(yourSquares, myPiecesStr);
+			Tree* opponentMoves = board->findAvailableMoves(yourPieceSquares, myPiecesStr);
 			
 			for (TreeNode* p2 = opponentMoves->tree->right;p2; p2 = p2->right) {
 				Move* move2 = p2->move;
@@ -46,7 +45,7 @@ namespace chess {
 				}
 			}
 
-			board->revertMove(move);			
+			board->revertMove(move, myPieceSquares, yourPieceSquares);
 
 			if (legal) {
 				//p1->setChildren(opponentMoves);
@@ -75,7 +74,7 @@ namespace chess {
 	}
 
 	bool Player::executeMove(Move* move) {
-		return board->executeMove(move);
+		return board->executeMove(move, myPieceSquares, yourPieceSquares);
 	}
 
 	Player::~Player() {

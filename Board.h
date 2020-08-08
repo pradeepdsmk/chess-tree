@@ -56,10 +56,14 @@ namespace chess {
 		Color set(const char* fen);	
 		Move* buildMove(const char* strLAN);
 		Move* buildMove(Square* src, Square* dst, char promotedTo);
-		bool executeMove(Move* move);
-		bool revertMove(Move* move);
+		bool executeMove(Move* move, List<Square>* myPieceSquares, List<Square>* yourPieceSquares);
+		bool revertMove(Move* move, List<Square>* myPieceSquares, List<Square>* yourPieceSquares);
 		Tree* findAvailableMoves(List<Square>* mySquares, const char* yourPiecesStr);
 		inline Color identifyPieceColor(char piece);
+		void movePiece(Square* srcSquare, Square* dstSquare, List<Square>* myPieceSquares, List<Square>* yourPieceSquares, char promotedTo = NoPiece);
+		void undoMovePiece(Square* srcSquare, Square* dstSquare, List<Square>* myPieceSquares, List<Square>* yourPieceSquares, char piece, char capturedPiece = NoPiece);
+
+		void castle(Move* move, List<Square>* myPieceSquares, bool bForward = true);
 		~Board();
 	};
 }

@@ -155,141 +155,111 @@ namespace chess {
 		return capturedPiece;
 	}
 
-	bool Board::executeMove(Move* move) {
-		List<Square>* myPieceSquares;
-		List<Square>* yourPieceSquares;
-		if (move->color == White) {
-			// white
-			myPieceSquares = whitePieceSquares;
-			yourPieceSquares = blackPieceSquares;
+
+	void Board::castle(Move* move, List<Square>* myPieceSquares, bool bForward) {		
+		unsigned char rookRow = move->dstRow; // same as king's
+		unsigned char srcRookCol, dstRookCol;
+		unsigned char flagsToUpdate = 0x00;
+		if (move->isShortCastle) {
+			srcRookCol = 7;
+			dstRookCol = move->dstCol - 1;
+			if (move->dstRow == 0) {
+				flagsToUpdate = (BLACK_KING_MOVED | BLACK_KING_ROOK_MOVED);
+			}
+			else {
+				flagsToUpdate = (WHITE_KING_MOVED | WHITE_KING_ROOK_MOVED);
+			}
 		}
 		else {
-			// black
-			myPieceSquares = blackPieceSquares;
-			yourPieceSquares = whitePieceSquares;
+			srcRookCol = 0;
+			dstRookCol = move->dstCol + 1;
+			if (move->dstRow == 0) {
+				flagsToUpdate = (BLACK_KING_MOVED | BLACK_QUEEN_ROOK_MOVED);
+			}
+			else {
+				flagsToUpdate = (WHITE_KING_MOVED | WHITE_QUEEN_ROOK_MOVED);
+			}
 		}
 
 		Square* srcSquare = square[move->srcRow][move->srcCol];
 		Square* dstSquare = square[move->dstRow][move->dstCol];
+		Square* srcRookSquare = square[rookRow][srcRookCol];
+		Square* dstRookSquare = square[rookRow][dstRookCol];
 
-		char piece = removePiece(srcSquare);
-		if (move->promotedTo != NoPiece) {
-			piece = move->promotedTo;
+		if (bForward) {
+			dstSquare->piece = srcSquare->piece;
+			dstRookSquare->piece = srcRookSquare->piece;
+			CASTLE_FLAGS |= flagsToUpdate;
+			myPieceSquares->replace(srcSquare, dstSquare);
+			myPieceSquares->replace(srcRookSquare, dstRookSquare);
 		}
-		char capturedPiece = placePiece(dstSquare, piece);
-		myPieceSquares->remove(srcSquare);
-		myPieceSquares->append(dstSquare);
+		else {
+			srcSquare->piece = dstSquare->piece;
+			srcRookSquare->piece = dstRookSquare->piece;
+			CASTLE_FLAGS &= ~flagsToUpdate;
+			myPieceSquares->replace(dstSquare, srcSquare);
+			myPieceSquares->replace(dstRookSquare, srcRookSquare);
+		}
+	}
+
+
+	void Board::movePiece(Square* srcSquare, Square* dstSquare, List<Square>* myPieceSquares, List<Square>* yourPieceSquares, char promotedTo) {
+		char capturedPiece = dstSquare->piece;
 		if (capturedPiece != NoPiece) {
 			yourPieceSquares->remove(dstSquare);
-		}				
-
-		if (move->isShortCastle || move->isLongCastle) {
-			unsigned char rookRow = move->dstRow; // same as king's
-			unsigned char srcRookCol, dstRookCol;
-			if (move->isShortCastle) {
-				srcRookCol = 7;
-				dstRookCol = move->dstCol - 1;
-				if (move->dstRow == 0) {
-					CASTLE_FLAGS |= (BLACK_KING_MOVED | BLACK_KING_ROOK_MOVED);
-				}
-				else {
-					CASTLE_FLAGS |= (WHITE_KING_MOVED | WHITE_KING_ROOK_MOVED);
-				}
-			}
-			else {
-				srcRookCol = 0;
-				dstRookCol = move->dstCol + 1;
-				if (move->dstRow == 0) {
-					CASTLE_FLAGS |= (BLACK_KING_MOVED | BLACK_QUEEN_ROOK_MOVED);
-				}
-				else {
-					CASTLE_FLAGS |= (WHITE_KING_MOVED | WHITE_QUEEN_ROOK_MOVED);
-				}
-			}
-			Square* srcRookSquare = square[rookRow][srcRookCol];
-			Square* dstRookSquare = square[rookRow][dstRookCol];
-
-			char rook = removePiece(srcRookSquare);
-			placePiece(dstRookSquare, rook);
-
-			myPieceSquares->remove(srcRookSquare);
-			myPieceSquares->append(dstRookSquare);
 		}
 
-		return true;
-	}
-
-	bool Board::revertMove(Move* move) {
-		List<Square>* myPieceSquares;
-		List<Square>* yourPieceSquares;
-		if (move->color == White) {
-			// white
-			myPieceSquares = whitePieceSquares;
-			yourPieceSquares = blackPieceSquares;
+		if (promotedTo != NoPiece) {
+			dstSquare->piece = promotedTo;
 		}
 		else {
-			// black
-			myPieceSquares = blackPieceSquares;
-			yourPieceSquares = whitePieceSquares;
+			dstSquare->piece = srcSquare->piece;
 		}
+		srcSquare->piece = NoPiece;
 
-		Square* srcSquare = square[move->srcRow][move->srcCol];
-		Square* dstSquare = square[move->dstRow][move->dstCol];
+		myPieceSquares->replace(srcSquare, dstSquare);		
+	}
 
-		char piece = removePiece(dstSquare);
-		if (move->promotedTo != NoPiece) {
-			piece = move->piece;
-		}
-		placePiece(srcSquare, piece);
-		myPieceSquares->remove(dstSquare);
-		myPieceSquares->append(srcSquare);
-		if (move->capturedPiece != NoPiece) {
-			placePiece(dstSquare, move->capturedPiece);
+	void Board::undoMovePiece(Square* srcSquare, Square* dstSquare, List<Square>* myPieceSquares, List<Square>* yourPieceSquares, char piece, char capturedPiece) {
+		if (capturedPiece != NoPiece) {
+			dstSquare->piece = capturedPiece;
 			yourPieceSquares->append(dstSquare);
 		}
-
+		else {
+			dstSquare->piece = NoPiece;
+		}
 		
+		srcSquare->piece = piece;
+		myPieceSquares->replace(dstSquare, srcSquare);
+	}
+
+	bool Board::executeMove(Move* move, List<Square>* myPieceSquares, List<Square>* yourPieceSquares) {		
 		if (move->isShortCastle || move->isLongCastle) {
-			unsigned char rookRow = move->dstRow; // same as king's
-			unsigned char srcRookCol, dstRookCol;
-			if (move->isShortCastle) {
-				srcRookCol = 7;
-				dstRookCol = move->dstCol - 1;
-				if (move->dstRow == 0) {
-					CASTLE_FLAGS &= ~(BLACK_KING_MOVED | BLACK_KING_ROOK_MOVED);
-				}
-				else {
-					CASTLE_FLAGS &= ~(WHITE_KING_MOVED | WHITE_KING_ROOK_MOVED);
-				}
-			}
-			else {
-				srcRookCol = 0;
-				dstRookCol = move->dstCol + 1;
-				if (move->dstRow == 0) {
-					CASTLE_FLAGS &= ~(BLACK_KING_MOVED | BLACK_QUEEN_ROOK_MOVED);
-				}
-				else {
-					CASTLE_FLAGS &= ~(WHITE_KING_MOVED | WHITE_QUEEN_ROOK_MOVED);
-				}
-			}
-			Square* srcRookSquare = square[rookRow][srcRookCol];
-			Square* dstRookSquare = square[rookRow][dstRookCol];
-
-			char rook = removePiece(dstRookSquare);
-			placePiece(srcRookSquare, rook);
-
-			myPieceSquares->remove(dstRookSquare);
-			myPieceSquares->append(srcRookSquare);
+			castle(move, myPieceSquares);
+		}
+		else {
+			movePiece(square[move->srcRow][move->srcCol], square[move->dstRow][move->dstCol], myPieceSquares, yourPieceSquares, move->promotedTo);
 		}
 
 		return true;
 	}
 
-	Tree* Board::findAvailableMoves(List<Square>* mySquares, const char* yourPiecesStr) {
+	bool Board::revertMove(Move* move, List<Square>* myPieceSquares, List<Square>* yourPieceSquares) {						
+		if (move->isShortCastle || move->isLongCastle) {
+			castle(move, myPieceSquares, false);
+		}
+		else {
+			undoMovePiece(square[move->srcRow][move->srcCol], square[move->dstRow][move->dstCol], myPieceSquares, yourPieceSquares, move->piece, move->capturedPiece);
+		}
+
+		return true;
+	}
+
+	Tree* Board::findAvailableMoves(List<Square>* myPieceSquares, const char* yourPiecesStr) {
 		
 		Tree* availableMoves = new Tree();
 
-		for (auto srcNode = mySquares->nodes; srcNode; srcNode = srcNode->next) {
+		for (auto srcNode = myPieceSquares->nodes; srcNode; srcNode = srcNode->next) {
 			Square* srcSquare = srcNode->item;
 
 			switch (srcSquare->piece) {
