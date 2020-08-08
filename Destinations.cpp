@@ -19,8 +19,8 @@ namespace chess {
 		if ((srcRow > 0) && (srcCol < 6)) ofKnight(board, srcRow - 1, srcCol + 2);
 		if ((srcRow < 7) && (srcCol < 6)) ofKnight(board, srcRow + 1, srcCol + 2);
 		if ((srcRow < 6) && (srcCol < 7)) ofKnight(board, srcRow + 2, srcCol + 1);
-		if ((srcRow < 6) && (srcCol > 1)) ofKnight(board, srcRow + 2, srcCol - 1);
-		if ((srcRow < 7) && (srcCol > 2)) ofKnight(board, srcRow + 1, srcCol - 2);
+		if ((srcRow < 6) && (srcCol > 0)) ofKnight(board, srcRow + 2, srcCol - 1);
+		if ((srcRow < 7) && (srcCol > 1)) ofKnight(board, srcRow + 1, srcCol - 2);
 		if ((srcRow > 0) && (srcCol > 1)) ofKnight(board, srcRow - 1, srcCol - 2);
 		if ((srcRow > 1) && (srcCol > 0)) ofKnight(board, srcRow - 2, srcCol - 1);
 
@@ -95,11 +95,24 @@ namespace chess {
 
 	Destinations::~Destinations() {
 		delete diagRays;
+		diagRays = nullptr;
+
 		delete sideRays;
+		sideRays = nullptr;
+
 		delete knight;
+		knight = nullptr;
+
 		delete whitePawn;
+		whitePawn = nullptr;
+
 		delete whitePawnAttack;
+		whitePawnAttack = nullptr;
+
 		delete blackPawn;
+		blackPawn = nullptr;
+
 		delete blackPawnAttack;
+		blackPawnAttack = nullptr;
 	}
 }
