@@ -25,7 +25,7 @@ void idea3() {
 	chess::XboardCommand command(engine);
 
 	while (1) {
-		Sleep(100); // for some reason
+		Sleep(200); // for some reason
 
 		std::getline(std::cin, input);
 		Log::add("input: " + input);
