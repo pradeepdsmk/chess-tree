@@ -18,12 +18,8 @@ namespace chess {
 		Player* opponent;
 
 	public:
-		Player(Board* _board);
-		void setOpponent(Player* player);
-		void init(Color color);
+		Player(Board* _board, Color _color);
 		bool executeMove(Move* move);
-
-		//TreeContainer* findAvailableMoves();
 		Move* bestMove();
 		~Player();
 	};

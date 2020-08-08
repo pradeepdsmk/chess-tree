@@ -2,14 +2,7 @@
 #include "Player.h"
 
 namespace chess {
-	Player::Player(Board* _board) : board(_board) {
-	}
-
-	void Player::setOpponent(Player* player) {
-		opponent = player;
-	}
-
-	void Player::init(Color _color) {
+	Player::Player(Board* _board, Color _color) : board(_board) {
 		color = _color;
 		if (color == White) {
 			myPieceSquares = board->whitePieceSquares;

@@ -4,19 +4,17 @@ namespace chess {
 
 	Engine::Engine() {
 		board = new Board();
-		players[0] = new Player(board); // engine
-		players[1] = new Player(board); // user
-
-		players[0]->setOpponent(players[1]);
-		players[1]->setOpponent(players[0]);
+		playerWhite = new Player(board, White);
+		playerBlack = new Player(board, Black);
+		isForceMode = false;
 	}
 
 	Engine::~Engine() {
-		delete players[0];
-		players[0] = nullptr;
+		delete playerWhite;
+		playerWhite = nullptr;
 
-		delete players[1];
-		players[1] = nullptr;
+		delete playerBlack;
+		playerBlack = nullptr;
 
 		delete board;
 		board = nullptr;
@@ -24,22 +22,71 @@ namespace chess {
 	
 	void Engine::newboard() {
 		board->clear();
-		Color colorToPlay = board->set(Board::StartposFen);
+		board->set(Board::StartposFen);
+		colorOnMove = White;
+		playerEngine = playerBlack;
+		playerUser = playerWhite;
+	}
 
-		players[0]->init(!colorToPlay);
-		players[1]->init(colorToPlay);
+	void Engine::force() {
+		isForceMode = true;
+	}
+
+	void Engine::go(std::string& output) {
+		if (colorOnMove == White) {
+			playerEngine = playerWhite;
+			playerUser = playerBlack;
+		}
+		else {
+			playerEngine = playerBlack;
+			playerUser = playerWhite;
+		}
+
+		isForceMode = false;
+
+		enginemove(output);
 	}
 
 	void Engine::usermove(const std::string& input, std::string& output) {
 		Move* move = board->buildMove(input.c_str());
 
-		if (!players[1]->executeMove(move)) {
+		if (!playerUser->executeMove(move)) {
 			output = "Illegal move";
 			return;
 		}
+		colorOnMove = !colorOnMove;
 
-		Move* replyMove = players[0]->bestMove();
-		players[0]->executeMove(replyMove);
-		output = "move " + replyMove->toLAN();
+		if (isForceMode) {
+			output = "";
+			return;
+		}
+
+		enginemove(output);
+	}
+
+	void Engine::enginemove(std::string& output) {
+		if (((colorOnMove == White) && (playerEngine == playerBlack))
+			|| ((colorOnMove == Black) && (playerEngine == playerWhite ))) {
+			output = "";
+			return;
+		}
+
+		Move* replyMove = playerEngine->bestMove();
+		if (!replyMove) {
+			std::string result;
+			if (playerEngine == playerWhite) {
+				result = "0-1 { Checkmate }";
+			}
+			else {
+				result = "1-0 { Checkmate }";
+			}
+			output = "result " + result;
+		}
+		else {
+			playerEngine->executeMove(replyMove);
+			output = "move " + replyMove->toLAN();
+		}
+
+		colorOnMove = !colorOnMove;
 	}
 }
