@@ -16,5 +16,6 @@ namespace chess {
 
 	Square::~Square() {
 		delete dst;
+		dst = nullptr;
 	}
 }
