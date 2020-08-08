@@ -25,9 +25,14 @@ void Log::end() {
 	}
 
 	delete Log::thisRef;
+	Log::thisRef = nullptr;
 }
 
 Log::~Log() {
-	int i = 0;
-	i++;
+	if (Log::thisRef == nullptr) {
+		return;
+	}
+
+	delete Log::thisRef;
+	Log::thisRef = nullptr;
 }
