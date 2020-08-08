@@ -81,6 +81,17 @@ namespace chess {
 			}
 		}
 
+		void replace(T* srcItem, T* dstItem) {
+			ListNode<T>* node = nodes;
+			while (node) {
+				if (node->item == srcItem) {
+					node->item = dstItem;
+					break;
+				}
+				node = node->next;
+			}
+		}
+
 		void clear() {
 			delete nodes;
 			nodes = nullptr;
