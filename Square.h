@@ -2,7 +2,7 @@
 
 #include <string>
 #include "Destinations.h"
-
+#include "Constants.h"
 
 namespace chess {	
 

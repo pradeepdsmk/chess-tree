@@ -1,14 +1,13 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "Square.h"
 #include "Move.h"
 #include "List.h"
 #include "Destinations.h"
-
-
-#define White true
-#define Black false
+#include "Constants.h"
+#include "Tree.h"
 
 namespace chess {
 
@@ -28,36 +27,39 @@ namespace chess {
 
 	class Square;
 	class Move;
+	struct Tree;
 
 	class Board {
-		
+		friend class Destinations;
+				
+		char removePiece(Square* srcSquare);
+		char placePiece(Square* dstSquare, char piece);		
+
+	public:
 		Square* square[8][8];
-		bool colorToPlay;
-		
-		unsigned char numWhitePieces;
-		unsigned char numBlackPieces;
-		unsigned char numWhitePawns;
-		unsigned char numBlackPawns;
-		
-		static const char* startposFen;
+		static const char* StartposFen;
+		unsigned char CASTLE_FLAGS;
+		const unsigned char WHITE_KING_MOVED = 0x01;
+		const unsigned char WHITE_KING_ROOK_MOVED = 0x02;
+		const unsigned char WHITE_QUEEN_ROOK_MOVED = 0x04;
+		const unsigned char BLACK_KING_MOVED = 0x08;
+		const unsigned char BLACK_KING_ROOK_MOVED = 0x10;
+		const unsigned char BLACK_QUEEN_ROOK_MOVED = 0x20;
 
 		List<Square>* whitePieceSquares;
 		List<Square>* blackPieceSquares;
-
-		friend class Destinations;
-
-		void clearBoard();
-		void parseFen(const char* fen);
+		const char whitePiecesStr[7] = "PNBRQK";
+		const char blackPiecesStr[7] = "pnbrqk";
+				
+		Board();
+		void clear();
+		Color set(const char* fen);	
+		Move* buildMove(const char* strLAN);
+		Move* buildMove(Square* src, Square* dst, char promotedTo);
 		bool executeMove(Move* move);
-		Move* findReplyMove();
-
-	public:
-		Board();	
-
-		void newboard();
-		void setboard(const char* fen);
-		void usermove(const std::string& input, std::string& output);
-
+		bool revertMove(Move* move);
+		Tree* findAvailableMoves(List<Square>* mySquares, const char* yourPiecesStr);
+		inline Color identifyPieceColor(char piece);
 		~Board();
 	};
 }

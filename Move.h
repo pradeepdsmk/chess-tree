@@ -1,11 +1,12 @@
 #pragma once
 
 #include <string>
+#include "Constants.h"
 #include "Square.h"
 
-typedef unsigned char byte;
-
 namespace chess {
+
+	class Square;
 
 	class Move
 	{		
@@ -18,18 +19,9 @@ namespace chess {
 		bool isLongCastle;
 		bool isCapture;
 		bool isEnpassant;
+		Color color;
 
-		Move();
-
-		static inline std::string charToString(const char& c) {
-			std::string s(1, ((c == '\0') ? ' ' : c));
-			return s;
-		}
-
-		static inline std::string boolToString(const bool& c) {
-			std::string s(1, (c ? '1' : '0'));
-			return s;
-		}
+		Move();	
 
 		static inline bool isRow(const char& c) {
 			return ((c >= '1') && (c <= '8'));
@@ -47,6 +39,12 @@ namespace chess {
 			return (c - 'a');
 		}
 
-		std::string toString();
+		std::string toSAN();
+		std::string toLAN();
+
+		bool fromSAN(const char* str);
+		bool fromLAN(const char* str);
+
+		Move* clone();
 	};
 }
