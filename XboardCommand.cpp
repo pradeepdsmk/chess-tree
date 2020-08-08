@@ -18,7 +18,7 @@ namespace chess {
 		//Your engine should reply to the protover command by sending the "feature" command(see below) with the list of non - default feature settings that you require, if any.
 		//Your engine should never refuse to run due to receiving a higher protocol version number than it is expecting!New protocol versions will always be compatible with older ones by default; the larger version number is simply a hint that additional "feature" command options added in later protocol versions may be accepted.
 		//output = "feature san=1";
-		output = "";
+		output = "feature colors=0";
 		return true;
 	}
 
@@ -69,6 +69,7 @@ namespace chess {
 	bool XboardCommand::hForce(const std::string& input, std::string& output)
 	{
 		//Set the engine to play neither color ("force mode"). Stop clocks. The engine should check that moves received in force mode are legal and made in the proper turn, but should not think, ponder, or make moves of its own.
+		engine.force();
 		output = "";
 		return true;
 	}
@@ -76,7 +77,7 @@ namespace chess {
 	bool XboardCommand::hGo(const std::string& input, std::string& output)
 	{
 		//Leave force mode and set the engine to play the color that is on move. Associate the engine's clock with the color that is on move, the opponent's clock with the color that is not on move. Start the engine's clock. Start thinking and eventually make a move. 
-		output = "";
+		engine.go(output);
 		return true;
 	}
 
