@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <random>
 #include "Board.h"
 #include "Player.h"
 #include "Tree.h"
@@ -16,6 +17,9 @@ namespace chess {
 		Player* playerUser;
 		Color colorOnMove;
 		bool isForceMode;
+
+		std::mt19937 generator;
+		std::uniform_int_distribution<int> distribution;
 	public:
 		Engine();
 		~Engine();

@@ -38,6 +38,7 @@ namespace chess {
         last = tree;
         parent = nullptr;
         length = 0;
+        maxScore = 0;
     }
 
     Tree::~Tree() {
@@ -62,6 +63,9 @@ namespace chess {
         last->right = treeNode;
         last = treeNode;// move last after setting last right
         ++length;
+        if (move->score > maxScore) {
+            maxScore = move->score;
+        }
     }
 
     TreeNode* Tree::remove(TreeNode* p) {

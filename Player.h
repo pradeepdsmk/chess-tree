@@ -11,16 +11,18 @@ namespace chess {
 
 		const char* myPiecesStr;
 		const char* yourPiecesStr;
+		char king;
 
 		bool isShortCastleAllowed;
-		bool isLongCastleAllowed;
+		bool isLongCastleAllowed;	
 
 		Player* opponent;
 
 	public:
 		Player(Board* _board, Color _color);
 		bool executeMove(Move* move);
-		Move* bestMove();
+		Tree* legalMoves();		
+		bool isInCheck();
 		~Player();
 	};
 }

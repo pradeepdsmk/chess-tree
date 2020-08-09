@@ -7,6 +7,10 @@ namespace chess {
 		playerWhite = new Player(board, White);
 		playerBlack = new Player(board, Black);
 		isForceMode = false;
+
+		std::random_device rd;  //Will be used to obtain a seed for the random number engine
+		generator = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
+		distribution = std::uniform_int_distribution<int>(1, 10000);
 	}
 
 	Engine::~Engine() {
@@ -26,6 +30,7 @@ namespace chess {
 		colorOnMove = White;
 		playerEngine = playerBlack;
 		playerUser = playerWhite;
+		isForceMode = false;
 	}
 
 	void Engine::force() {
@@ -71,22 +76,44 @@ namespace chess {
 			return;
 		}
 
-		Move* replyMove = playerEngine->bestMove();
-		if (!replyMove) {
-			std::string result;
-			if (playerEngine == playerWhite) {
-				result = "0-1 { Checkmate }";
+		Tree* legalMoves = playerEngine->legalMoves();		
+
+		short maxDamage = -200, damage;		
+		for (TreeNode* p1 = legalMoves->tree->right;p1; p1 = p1->right) {
+			damage = p1->move->score - p1->children->maxScore;
+			if (damage > maxDamage) {
+				maxDamage = damage;
 			}
-			else {
-				result = "1-0 { Checkmate }";
-			}
-			output = "result " + result;
-		}
-		else {
-			playerEngine->executeMove(replyMove);
-			output = "move " + replyMove->toLAN();
 		}
 
-		colorOnMove = !colorOnMove;
+		for (TreeNode* p2 = legalMoves->tree->right;p2; p2 = p2->right) {
+			damage = p2->move->score - p2->children->maxScore;
+			if (damage < maxDamage) {
+				p2 = legalMoves->remove(p2);
+			}
+		}
+		if (legalMoves->length > 0) {
+			int movePos = distribution(generator) % legalMoves->length;
+			Move* replyMove = legalMoves->getAt(movePos)->move;
+
+			playerEngine->executeMove(replyMove);
+			output = "move " + replyMove->toLAN();
+			colorOnMove = !colorOnMove;
+		}
+		else {	
+			if (playerEngine->isInCheck()) {
+				if (playerEngine == playerWhite) {
+					output = "0-1 { Checkmate }";
+				}
+				else {
+					output = "1-0 { Checkmate }";
+				}
+			}
+			else {
+				output = "1/2-1/2 { Stalemate }";
+			}			
+		}
+
+		delete legalMoves;
 	}
 }

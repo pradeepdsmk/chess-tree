@@ -64,6 +64,10 @@ namespace chess {
 		void undoMovePiece(Square* srcSquare, Square* dstSquare, List<Square>* myPieceSquares, List<Square>* yourPieceSquares, char piece, char capturedPiece = NoPiece);
 
 		void castle(Move* move, List<Square>* myPieceSquares, bool bForward = true);
+		void setMoveScore(Move* move);
+
+		Tree* findLegalMoves(List<Square>* myPieceSquares, List<Square>* yourPieceSquares, const char* myPiecesStr, const char* yourPiecesStr, char myKing);
+		bool isKingInCheck(Tree* opponentMoves, char myKing);
 		~Board();
 	};
 }

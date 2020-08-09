@@ -125,6 +125,50 @@ namespace chess {
 		return move;
 	}
 
+	void Board::setMoveScore(Move* move) {
+		switch (move->capturedPiece) {
+		case 'p':
+		case 'P':
+			move->score = 1;
+			break;
+		case 'n':
+		case 'N':
+		case 'b':
+		case 'B':
+			move->score = 3;
+			break;
+		case 'r':
+		case 'R':
+			move->score = 5;
+			break;
+		case 'q':
+		case 'Q':
+			move->score = 9;
+			break;
+		case 'k':
+		case 'K':
+			move->score = 199;
+			break;
+		default:
+			move->score = 0;
+		}
+		switch (move->promotedTo) {
+		case 'q':
+		case 'Q':
+			move->score += 9;
+			break;
+		case 'n':
+		case 'N':
+		case 'b':
+		case 'B':
+			move->score += 3;
+			break;
+		case 'r':
+		case 'R':
+			move->score += 5;
+		}
+	}
+
 	Move* Board::buildMove(Square* src, Square* dst, char _promotedTo = NoPiece) {
 		Move* move = new Move();
 		move->srcRow = src->row;
@@ -135,6 +179,8 @@ namespace chess {
 		move->capturedPiece = dst->piece;
 		move->promotedTo = _promotedTo;
 		move->color = identifyPieceColor(move->piece);
+		setMoveScore(move);		
+		move->s = move->toLAN(); // to-do: remove this overhead
 		// to-do: castling, en passant ???
 		return move;
 	}
@@ -410,5 +456,37 @@ namespace chess {
 		}
 
 		return availableMoves;
+	}
+
+	Tree* Board::findLegalMoves(List<Square>* myPieceSquares, List<Square>* yourPieceSquares, const char* myPiecesStr, const char* yourPiecesStr, char myKing) {
+		Tree* availableMoves = findAvailableMoves(myPieceSquares, yourPiecesStr);
+		for (TreeNode* p1 = availableMoves->tree->right;p1; p1 = p1->right) {
+			Move* move = p1->move;
+			executeMove(move, myPieceSquares, yourPieceSquares);
+
+			Tree* opponentMoves = findAvailableMoves(yourPieceSquares, myPiecesStr);
+			bool isInCheck = isKingInCheck(opponentMoves, myKing);
+			revertMove(move, myPieceSquares, yourPieceSquares);
+
+			if (isInCheck) {
+				p1 = availableMoves->remove(p1);
+				delete opponentMoves;
+			}
+			else {
+				p1->setChildren(opponentMoves);
+			}
+			
+		}
+		return availableMoves;
+	}
+
+	bool Board::isKingInCheck(Tree* opponentMoves, char myKing) {
+		for (TreeNode* p2 = opponentMoves->tree->right;p2; p2 = p2->right) {
+			Move* move2 = p2->move;
+			if (square[move2->dstRow][move2->dstCol]->piece == myKing) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

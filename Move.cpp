@@ -203,6 +203,7 @@ namespace chess {
         move->isCapture = isCapture;
         move->isEnpassant = isEnpassant;
         move->color = color;
+        move->score = score;
         return move;
     }
 
