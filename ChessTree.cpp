@@ -36,7 +36,9 @@ void idea3() {
 
 		Log::add("output: " + output);
 
-		std::cout << output << std::endl;
+		if (!output.empty()) {
+			std::cout << output << std::endl;
+		}
 	}
 }
 
