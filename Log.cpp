@@ -29,10 +29,4 @@ void Log::end() {
 }
 
 Log::~Log() {
-	if (Log::thisRef == nullptr) {
-		return;
-	}
-
-	delete Log::thisRef;
-	Log::thisRef = nullptr;
 }
