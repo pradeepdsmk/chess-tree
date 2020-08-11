@@ -5,6 +5,10 @@ namespace chess {
 		mapSize = sizeof(m) / sizeof(m[0]);
 	}
 
+	XboardCommand::~XboardCommand() {
+
+	}
+
 	bool XboardCommand::hXboard(const std::string& input, std::string& output) {
 		//This command will be sent once immediately after your engine process is started.You can use it to put your engine into "xboard mode" if that is needed.If your engine prints a prompt to ask for user input, you must turn off the promptand output a newline when the "xboard" command comes in.
 		output = "";

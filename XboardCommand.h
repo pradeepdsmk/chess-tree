@@ -65,7 +65,7 @@ namespace chess {
 
 		size_t mapSize;
 
-		Engine engine;
+		Engine &engine;
 
 		bool hXboard(const std::string& input, std::string& output);
 
@@ -122,6 +122,8 @@ namespace chess {
 		XboardCommand(Engine& e);
 
 		bool process(const std::string& input, std::string& output);
+
+		~XboardCommand();
 	};
 }
 
