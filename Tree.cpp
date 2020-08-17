@@ -32,9 +32,6 @@ namespace chess {
 
     /////////////////////////////
 
-
-    const char Tree::LeastScore = -104;
-
     Tree::Tree() {
         tree = new TreeNode();
         last = tree;

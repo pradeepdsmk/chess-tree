@@ -33,7 +33,7 @@ namespace chess {
 
         TreeNode* current;
 
-        static const char LeastScore;
+        static const char LeastScore = -104;
 
         Tree();
         void add(Move* move);
