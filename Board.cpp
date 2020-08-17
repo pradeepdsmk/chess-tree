@@ -118,8 +118,9 @@ namespace chess {
 		move->fromLAN(strLAN);
 		move->piece = square[move->srcRow][move->srcCol]->piece;
 		move->capturedPiece = square[move->dstRow][move->dstCol]->piece;
-		move->color = identifyPieceColor(move->piece);
-		if ((move->promotedTo != NoPiece) && (move->color == White)) {
+		// move->color = identifyPieceColor(move->piece);
+		identifyPieceColor(move);
+		if ((move->promotedTo != NoPiece) && (move->moveFlags & Move::COLOR_WHITE)) {
 			move->promotedTo = move->promotedTo - 32;
 		}
 		return move;
@@ -178,15 +179,20 @@ namespace chess {
 		move->piece = src->piece;
 		move->capturedPiece = dst->piece;
 		move->promotedTo = _promotedTo;
-		move->color = identifyPieceColor(move->piece);
+		// move->color = identifyPieceColor(move->piece);
+		identifyPieceColor(move);
 		setMoveScore(move);		
 		//move->s = move->toLAN(); // to-do: remove this overhead
 		// to-do: castling, en passant ???
 		return move;
 	}
 
-	Color Board::identifyPieceColor(char piece) {
-		return ((piece ^ 'P') & (piece ^ 'N') & (piece ^ 'B') & (piece ^ 'Q') & (piece ^ 'R') & (piece ^ 'K')) ? Black : White;
+	void Board::identifyPieceColor(Move* move) {		
+		if ((move->piece ^ 'P') & (move->piece ^ 'N') & (move->piece ^ 'B') & (move->piece ^ 'Q') & (move->piece ^ 'R') & (move->piece ^ 'K')) {
+			move->moveFlags &= ~Move::COLOR_WHITE;
+		} else {
+			move->moveFlags |= Move::COLOR_WHITE;
+		}		
 	}
 
 	char Board::removePiece(Square* srcSquare) {
@@ -206,7 +212,7 @@ namespace chess {
 		unsigned char rookRow = move->dstRow; // same as king's
 		unsigned char srcRookCol, dstRookCol;
 		unsigned char flagsToUpdate = 0x00;
-		if (move->isShortCastle) {
+		if (move->moveFlags & Move::SHORT_CASTLE) {
 			srcRookCol = 7;
 			dstRookCol = move->dstCol - 1;
 			if (move->dstRow == 0) {
@@ -280,7 +286,7 @@ namespace chess {
 	}
 
 	bool Board::executeMove(Move* move, List<Square>* myPieceSquares, List<Square>* yourPieceSquares) {		
-		if (move->isShortCastle || move->isLongCastle) {
+		if ((move->moveFlags & Move::SHORT_CASTLE) || (move->moveFlags & Move::LONG_CASTLE)) {
 			castle(move, myPieceSquares);
 		}
 		else {
@@ -291,7 +297,7 @@ namespace chess {
 	}
 
 	bool Board::revertMove(Move* move, List<Square>* myPieceSquares, List<Square>* yourPieceSquares) {						
-		if (move->isShortCastle || move->isLongCastle) {
+		if ((move->moveFlags & Move::SHORT_CASTLE) || (move->moveFlags & Move::LONG_CASTLE)) {
 			castle(move, myPieceSquares, false);
 		}
 		else {

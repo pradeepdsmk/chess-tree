@@ -15,12 +15,18 @@ namespace chess {
 		//std::string s;
 		char piece, capturedPiece, promotedTo;
 		unsigned char srcRow, srcCol, dstRow, dstCol;
+		char moveFlags;
+		static const char SHORT_CASTLE = 0x01;
+		static const char LONG_CASTLE = 0x02;
+		static const char ENPASSANT = 0x04;
+		static const char COLOR_WHITE = 0x08;
+		
 
-		bool isShortCastle;
-		bool isLongCastle;
+		//bool isShortCastle;
+		//bool isLongCastle;
 		//bool isCapture;
-		bool isEnpassant;
-		Color color;
+		//bool isEnpassant;
+		//Color color;
 		char score;
 		
 		

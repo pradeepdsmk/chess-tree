@@ -10,18 +10,19 @@ namespace chess {
 
         srcRow = srcCol = dstRow = dstCol = 8;
 
-        isShortCastle = isLongCastle = /*isCapture =*/ isEnpassant = false;
+        //isShortCastle = isLongCastle = /*isCapture =*/ isEnpassant = false;
+        moveFlags = 0x00;
     }
 
 	std::string Move::toSAN() {
 
         std::stringstream ss;
 
-		if (isShortCastle) {
+		if (moveFlags & Move::SHORT_CASTLE) {
 			return std::string("O-O");
 		}
 
-		if (isLongCastle) {
+		if (moveFlags & Move::LONG_CASTLE) {
 			return std::string("O-O-O");
 		}
 
@@ -39,7 +40,7 @@ namespace chess {
 
 
 		if ((piece == 'P') || (piece == 'p')) {
-			if (isEnpassant) {
+			if (moveFlags & Move::ENPASSANT) {
                 ss << "e.p.";
 			}
 			else if (promotedTo != NoPiece) {
@@ -74,10 +75,10 @@ namespace chess {
         if (pos == len) {
             // may be it's castling move
             if (strcmp("O-O", str) == 0) {
-                isShortCastle = true;
+                moveFlags |= Move::SHORT_CASTLE;
             }
             else if (strcmp("O-O-O", str) == 0) {
-                isLongCastle = true;
+                moveFlags |= Move::LONG_CASTLE;
             }
             else {
                 //error = "Unable to decode, destination square not found\n";
@@ -175,10 +176,10 @@ namespace chess {
         dstRow = Move::getRow(str[3]);
 
         if ((strcmp(str, "e1g1") == 0) || (strcmp(str, "e8g8") == 0)) {
-            isShortCastle = true;
+            moveFlags |= Move::SHORT_CASTLE;
         }
         else if ((strcmp(str, "e1c1") == 0) || (strcmp(str, "e8c8") == 0)) {
-            isLongCastle = true;
+            moveFlags |= Move::LONG_CASTLE;
         }
 
         if (strlen(str) == 5) {
@@ -198,11 +199,11 @@ namespace chess {
         move->piece = piece;
         move->promotedTo = promotedTo;
         move->capturedPiece = capturedPiece;
-        move->isShortCastle = isShortCastle;
-        move->isLongCastle = isLongCastle;
+        move->moveFlags = moveFlags;
+        //move->isLongCastle = isLongCastle;
         //move->isCapture = isCapture;
-        move->isEnpassant = isEnpassant;
-        move->color = color;
+        //move->isEnpassant = isEnpassant;
+        //move->color = color;
         move->score = score;
         return move;
     }

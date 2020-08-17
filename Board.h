@@ -59,7 +59,7 @@ namespace chess {
 		bool executeMove(Move* move, List<Square>* myPieceSquares, List<Square>* yourPieceSquares);
 		bool revertMove(Move* move, List<Square>* myPieceSquares, List<Square>* yourPieceSquares);
 		Tree* findAvailableMoves(List<Square>* mySquares, const char* yourPiecesStr);
-		inline Color identifyPieceColor(char piece);
+		inline void identifyPieceColor(Move* move);
 		void movePiece(Square* srcSquare, Square* dstSquare, List<Square>* myPieceSquares, List<Square>* yourPieceSquares, char promotedTo = NoPiece);
 		void undoMovePiece(Square* srcSquare, Square* dstSquare, List<Square>* myPieceSquares, List<Square>* yourPieceSquares, char piece, char capturedPiece = NoPiece);
 
