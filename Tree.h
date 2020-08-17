@@ -29,7 +29,9 @@ namespace chess {
         TreeNode* last;
         TreeNode* parent;
         unsigned length;
-        unsigned maxScore;
+        char maxScore;
+
+        static const char LeastScore;
 
         Tree();
         void add(Move* move);

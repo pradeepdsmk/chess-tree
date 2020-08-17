@@ -33,12 +33,15 @@ namespace chess {
     /////////////////////////////
 
 
+    const char Tree::LeastScore = -104;
+
     Tree::Tree() {
         tree = new TreeNode();
         last = tree;
         parent = nullptr;
         length = 0;
-        maxScore = 0;
+        maxScore = Tree::LeastScore;
+        current = tree;
     }
 
     Tree::~Tree() {
@@ -81,6 +84,23 @@ namespace chess {
         delete p;
         p = nullptr;
         --length;
+
+
+        // update maxScore
+        if (length == 0) {
+            maxScore = Tree::LeastScore;
+        }
+        else {
+            TreeNode* p = tree->right;
+            char score;
+            while (p) {
+                score = p->move->score;
+                if (score > maxScore) {
+                    maxScore = score;
+                }
+                p = p->right;
+            }
+        }
 
         return pprev;
     }
