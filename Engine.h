@@ -17,11 +17,12 @@ namespace chess {
 		Player* playerUser;
 		Color colorOnMove;
 		bool isForceMode;
+		unsigned short maxTreeDepth;
 
 		std::mt19937 generator;
 		std::uniform_int_distribution<int> distribution;
 
-		Tree* moveTree(unsigned maxDepth);
+		Tree* moveTree();
 		void swapPlayers(Player** player1, Player** player2);
 	public:
 		Engine();

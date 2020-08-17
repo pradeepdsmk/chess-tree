@@ -9,6 +9,7 @@ namespace chess {
 		playerWhite = new Player(board, White);
 		playerBlack = new Player(board, Black);
 		isForceMode = false;
+		maxTreeDepth = 4;
 
 		std::random_device rd;  //Will be used to obtain a seed for the random number engine
 		generator = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -83,7 +84,7 @@ namespace chess {
 		}
 
 		//Tree* legalMoves = playerEngine->legalMoves();		
-		Tree* legalMoves = moveTree(3);
+		Tree* legalMoves = moveTree();
 
 		short maxDamage = -200, damage;		
 		for (TreeNode* p1 = legalMoves->tree->right;p1; p1 = p1->right) {
@@ -124,7 +125,7 @@ namespace chess {
 		delete legalMoves;
 	}
 
-	Tree* Engine::moveTree(unsigned maxDepth) {
+	Tree* Engine::moveTree() {
 		Player* player = playerEngine;
 		Player* opponent = playerUser;
 		Tree* availableMoves = player->availableMoves();
@@ -173,7 +174,7 @@ namespace chess {
 			}			
 			
 			// if we can not go deep, revert move
-			if (depth == maxDepth - 1) {
+			if (depth == maxTreeDepth - 1) {
 				player->revertMove(move);
 				continue;
 			}			
