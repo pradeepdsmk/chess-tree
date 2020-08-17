@@ -10,7 +10,7 @@ namespace chess {
 
         srcRow = srcCol = dstRow = dstCol = 8;
 
-        isShortCastle = isLongCastle = isCapture = isEnpassant = false;
+        isShortCastle = isLongCastle = /*isCapture =*/ isEnpassant = false;
     }
 
 	std::string Move::toSAN() {
@@ -25,7 +25,7 @@ namespace chess {
 			return std::string("O-O-O");
 		}
 
-		if (isCapture) {
+		if (capturedPiece != NoPiece) {
 			if ((piece == 'P') || (piece == 'p')) {
                 ss << (char)('a' + srcCol) << 'x' << (char)('a' + dstCol) << (char)(7 - dstRow + '1');
 			}
@@ -90,11 +90,11 @@ namespace chess {
         dstRow = Move::getRow(str[pos + 1]);
         dstCol = Move::getCol(str[pos]);
 
-        // identify capture
-        if ((pos >= 2) && (str[pos - 1] == 'x')) {
-            //it's a capture
-            isCapture = true;
-        }
+        //// identify capture
+        //if ((pos >= 2) && (str[pos - 1] == 'x')) {
+        //    //it's a capture
+        //    //isCapture = true;
+        //}
 
         // check promotion
         if ((len >= pos + 4) && (str[pos + 2] == '=')) {
@@ -200,7 +200,7 @@ namespace chess {
         move->capturedPiece = capturedPiece;
         move->isShortCastle = isShortCastle;
         move->isLongCastle = isLongCastle;
-        move->isCapture = isCapture;
+        //move->isCapture = isCapture;
         move->isEnpassant = isEnpassant;
         move->color = color;
         move->score = score;

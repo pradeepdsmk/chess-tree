@@ -147,7 +147,7 @@ namespace chess {
 			break;
 		case 'k':
 		case 'K':
-			move->score = 199;
+			move->score = 103;
 			break;
 		default:
 			move->score = 0;
@@ -180,7 +180,7 @@ namespace chess {
 		move->promotedTo = _promotedTo;
 		move->color = identifyPieceColor(move->piece);
 		setMoveScore(move);		
-		move->s = move->toLAN(); // to-do: remove this overhead
+		//move->s = move->toLAN(); // to-do: remove this overhead
 		// to-do: castling, en passant ???
 		return move;
 	}

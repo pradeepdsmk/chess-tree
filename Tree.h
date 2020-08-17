@@ -31,6 +31,8 @@ namespace chess {
         unsigned length;
         char maxScore;
 
+        TreeNode* current;
+
         static const char LeastScore;
 
         Tree();

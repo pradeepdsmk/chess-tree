@@ -23,15 +23,30 @@ namespace chess {
 		return board->findLegalMoves(myPieceSquares, yourPieceSquares, myPiecesStr, yourPiecesStr, king);		
 	}
 
+	Tree* Player::availableMoves() {
+		return board->findAvailableMoves(myPieceSquares, yourPiecesStr);
+	}
+
 	bool Player::executeMove(Move* move) {
 		return board->executeMove(move, myPieceSquares, yourPieceSquares);
 	}
 
-	bool Player::isInCheck() {
+	bool Player::revertMove(Move* move) {
+		return board->revertMove(move, myPieceSquares, yourPieceSquares);
+	}
+
+	bool Player::isKingInCheck() {
 		Tree* opponentMoves = board->findAvailableMoves(yourPieceSquares, myPiecesStr);
 		if (board->isKingInCheck(opponentMoves, king)) {
 			return true;
 		} 
+		return false;
+	}
+
+	bool Player::isKingInCheck(Tree* opponentMoves) {		
+		if (board->isKingInCheck(opponentMoves, king)) {
+			return true;
+		}
 		return false;
 	}
 

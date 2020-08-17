@@ -21,9 +21,11 @@ namespace chess {
 	public:
 		Player(Board* _board, Color _color);
 		bool executeMove(Move* move);
-		Tree* legalMoves();		
-		bool isInCheck();
+		bool revertMove(Move* move);
+		Tree* legalMoves();	
+		Tree* availableMoves();
+		bool isKingInCheck();
+		bool isKingInCheck(Tree* opponentMoves);
 		~Player();
 	};
 }
-

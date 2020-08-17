@@ -12,16 +12,16 @@ namespace chess {
 	{		
 
 	public:
-		std::string s;
+		//std::string s;
 		char piece, capturedPiece, promotedTo;
 		unsigned char srcRow, srcCol, dstRow, dstCol;
 
 		bool isShortCastle;
 		bool isLongCastle;
-		bool isCapture;
+		//bool isCapture;
 		bool isEnpassant;
 		Color color;
-		unsigned short score;
+		char score;
 		
 		
 

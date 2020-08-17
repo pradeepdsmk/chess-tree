@@ -20,6 +20,9 @@ namespace chess {
 
 		std::mt19937 generator;
 		std::uniform_int_distribution<int> distribution;
+
+		Tree* moveTree(unsigned maxDepth);
+		void swapPlayers(Player** player1, Player** player2);
 	public:
 		Engine();
 		~Engine();
@@ -27,6 +30,6 @@ namespace chess {
 		void newboard();
 		void go(std::string& output);
 		void enginemove(std::string& output);
-		void force();
+		void force();		
 	};
 }

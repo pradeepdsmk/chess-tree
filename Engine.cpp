@@ -1,4 +1,6 @@
 #include "Engine.h"
+#include <iostream>
+#include <chrono>
 
 namespace chess {
 
@@ -55,14 +57,18 @@ namespace chess {
 	void Engine::usermove(const std::string& input, std::string& output) {
 		Move* move = board->buildMove(input.c_str());
 
-		if (!playerUser->executeMove(move)) {
-			output = "Illegal move";
+		bool executeSuccess = playerUser->executeMove(move);
+		//delete move;
+
+		if (!executeSuccess) {
+			output = "Illegal move";		
 			return;
 		}
+
 		colorOnMove = !colorOnMove;
 
 		if (isForceMode) {
-			output = "";
+			output = "";			
 			return;
 		}
 
@@ -76,7 +82,8 @@ namespace chess {
 			return;
 		}
 
-		Tree* legalMoves = playerEngine->legalMoves();		
+		//Tree* legalMoves = playerEngine->legalMoves();		
+		Tree* legalMoves = moveTree(3);
 
 		short maxDamage = -200, damage;		
 		for (TreeNode* p1 = legalMoves->tree->right;p1; p1 = p1->right) {
@@ -101,7 +108,7 @@ namespace chess {
 			colorOnMove = !colorOnMove;
 		}
 		else {	
-			if (playerEngine->isInCheck()) {
+			if (playerEngine->isKingInCheck()) {
 				if (playerEngine == playerWhite) {
 					output = "0-1 { Checkmate }";
 				}
@@ -115,5 +122,78 @@ namespace chess {
 		}
 
 		delete legalMoves;
+	}
+
+	Tree* Engine::moveTree(unsigned maxDepth) {
+		Player* player = playerEngine;
+		Player* opponent = playerUser;
+		Tree* availableMoves = player->availableMoves();
+		Tree* moveTree = availableMoves;
+		unsigned depth = 1;
+		unsigned executedMoveCount = 0; // just for tracking
+
+		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+
+		while (1) {
+			// if there is no another move, go up
+			if (availableMoves->current->right == nullptr) {
+				// if there is no up, then we are done
+				if (availableMoves->parent == nullptr) {
+					break;
+				}
+
+				availableMoves = availableMoves->parent->thisTree;
+				swapPlayers(&player, &opponent);
+				depth--;
+
+				// revert move in the up, if move is valid (first node in tree is dummy, remmeber?)
+				if (availableMoves->current->move != nullptr) {
+					player->revertMove(availableMoves->current->move);
+				}			
+
+				continue;
+			}			
+
+			// go to next move and execute			
+			availableMoves->current = availableMoves->current->right;
+			Move* move = availableMoves->current->move;
+			player->executeMove(move);
+			executedMoveCount++;
+
+			// find opponent moves and add them as children
+			Tree* opponentMoves = opponent->availableMoves();
+			availableMoves->current->setChildren(opponentMoves);
+
+			// if this is not a legal move, revert this move, remove it
+			if (player->isKingInCheck(opponentMoves)) {
+				player->revertMove(move);
+				//delete opponentMoves; // remove will delete entire tree
+				availableMoves->current = availableMoves->remove(availableMoves->current);
+				continue;
+			}			
+			
+			// if we can not go deep, revert move
+			if (depth == maxDepth - 1) {
+				player->revertMove(move);
+				continue;
+			}			
+
+			// go deep, 
+			swapPlayers(&player, &opponent);
+			//availableMoves = availableMoves->current->children; // faster? use opponentMoves
+			availableMoves = opponentMoves;
+			depth++;
+		}	
+
+		auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count();
+		std::cout << executedMoveCount << " moves executed in " << timeDiff << " milliseconds" << std::endl;
+
+		return moveTree;
+	}
+
+	void Engine::swapPlayers(Player** player1, Player** player2) {
+		Player* temp = *player1;
+		*player1 = *player2;
+		*player2 = temp;
 	}
 }
