@@ -69,6 +69,10 @@ namespace chess {
     }
 
     TreeNode* Tree::remove(TreeNode* p) {
+        if (p == tree) {
+            // do not remove the first node [oh! WTH]
+            return p;
+        }
         TreeNode* pprev = p->left;
         p->left->right = p->right;
         if (p->right) {
