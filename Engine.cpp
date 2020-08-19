@@ -59,7 +59,7 @@ namespace chess {
 		Move* move = board->buildMove(input.c_str());
 
 		bool executeSuccess = playerUser->executeMove(move);
-		//delete move;
+		delete move;
 
 		if (!executeSuccess) {
 			output = "Illegal move";		
@@ -155,8 +155,8 @@ namespace chess {
 				continue;
 			}			
 
-			// go to next move and execute			
-			availableMoves->current = availableMoves->current->right;
+			// go to next move and execute						
+			availableMoves->current = availableMoves->current->right;			
 			Move* move = availableMoves->current->move;
 			player->executeMove(move);
 			executedMoveCount++;
