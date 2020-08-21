@@ -17,6 +17,7 @@ namespace chess {
 		Player* playerUser;
 		Color colorOnMove;
 		bool isForceMode;
+		bool isAnalyzeMode;
 		unsigned short maxTreeDepth;
 
 		std::mt19937 generator;
@@ -32,7 +33,9 @@ namespace chess {
 		void go(std::string& output);
 		void enginemove(std::string& output);
 		void force();	
-
+		void setboard(const std::string& input, std::string& output);
+		void analyze();
+		void exit();
 
 		int watchMoveScores(Tree* legalMoves);
 		int thinkingOutput(Tree* legalMoves);

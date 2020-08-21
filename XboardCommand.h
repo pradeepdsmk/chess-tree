@@ -15,7 +15,7 @@ namespace chess {
 			CommandFunc func;
 		};
 
-		CommandFuncMap m[45] = {
+		CommandFuncMap m[47] = {
 				{"xboard", &XboardCommand::hXboard},
 				{"protover", &XboardCommand::hProtover},
 				{"accepted", &XboardCommand::hAccepted},
@@ -51,6 +51,8 @@ namespace chess {
 				{"post", &XboardCommand::hPost},
 				{"nopost", &XboardCommand::hNopost},
 				{"analyze", &XboardCommand::hAnalyze},
+				{".", &XboardCommand::hDot},
+				{"exit", &XboardCommand::hExit},
 				{"name", &XboardCommand::hName},
 				{"rating", &XboardCommand::hRating},
 				{"ics", &XboardCommand::hIcs},
@@ -103,6 +105,8 @@ namespace chess {
 		bool hPost(const std::string& input, std::string& output);
 		bool hNopost(const std::string& input, std::string& output);
 		bool hAnalyze(const std::string& input, std::string& output);
+		bool hDot(const std::string& input, std::string& output);
+		bool hExit(const std::string& input, std::string& output);
 		bool hName(const std::string& input, std::string& output);
 		bool hRating(const std::string& input, std::string& output);
 		bool hIcs(const std::string& input, std::string& output);

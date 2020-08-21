@@ -22,7 +22,7 @@ namespace chess {
 		//Your engine should reply to the protover command by sending the "feature" command(see below) with the list of non - default feature settings that you require, if any.
 		//Your engine should never refuse to run due to receiving a higher protocol version number than it is expecting!New protocol versions will always be compatible with older ones by default; the larger version number is simply a hint that additional "feature" command options added in later protocol versions may be accepted.
 		//output = "feature san=1";
-		output = "feature colors=0";
+		output = "feature colors=0 setboard=1";
 		return true;
 	}
 
@@ -207,6 +207,7 @@ namespace chess {
 		//setboard FEN
 		//The setboard command is the new way to set up positions, beginning in protocol version 2. It is not used unless it has been selected with the feature command. Here FEN is a position in Forsythe-Edwards Notation, as defined in the PGN standard. Note that this PGN standard referred to here only applies to normal Chess; Obviously in variants that cannot be described by a FEN for normal Chess, e.g. because the board is not 8x8, other pieces then PNBRQK participate, there are holdings that need to be specified, etc., xboard will use a FEN format that is standard or suitable for that varant. In particular, in FRC or CRC, WinBoard will use Shredder-FEN or X-FEN standard, i.e. it can use the rook-file indicator letter to represent a castling right (like HAha) whenever it wants, but if it uses KQkq, this will always refer to the outermost rook on the given side.
 		//Illegal positions : Note that either setboard or edit can be used to send an illegal position to the engine.The user can create any position with xboard's Edit Position command (even, say, an empty board, or a board with 64 white kings and no black ones). If your engine receives a position that it considers illegal, I suggest that you send the response "tellusererror Illegal position", and then respond to any attempted move with "Illegal move" until the next new, edit, or setboard command.
+		engine.setboard(input, output);
 		output = "";
 		return true;
 	}
@@ -291,7 +292,23 @@ namespace chess {
 	bool XboardCommand::hAnalyze(const std::string& input, std::string& output)
 	{
 		//Enter analyze mode.
+		engine.analyze();
 		output = "";
+		return true;
+	}
+
+	bool XboardCommand::hDot(const std::string& input, std::string& output)
+	{
+		//.   Send a search status update (optional). 
+		output = "";
+		return true;
+	}
+
+	bool XboardCommand::hExit(const std::string& input, std::string& output)
+	{
+		//.   Send a search status update (optional). 
+		engine.exit();
+		output = "";		
 		return true;
 	}
 

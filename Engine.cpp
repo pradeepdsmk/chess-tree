@@ -10,7 +10,7 @@ namespace chess {
 		playerWhite = new Player(board, White);
 		playerBlack = new Player(board, Black);
 		isForceMode = false;
-		maxTreeDepth = 3;
+		maxTreeDepth = 4;
 
 		std::random_device rd;  //Will be used to obtain a seed for the random number engine
 		generator = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -37,8 +37,22 @@ namespace chess {
 		isForceMode = false;
 	}
 
+	void Engine::setboard(const std::string& input, std::string& output) {
+		std::string fen = input.substr(9);
+		board->clear();
+		board->set(fen.c_str());
+	}
+
 	void Engine::force() {
 		isForceMode = true;
+	}
+
+	void Engine::analyze() {
+		isAnalyzeMode = true;
+	}
+
+	void Engine::exit() {
+		isAnalyzeMode = false;
 	}
 
 	void Engine::go(std::string& output) {
@@ -57,8 +71,19 @@ namespace chess {
 	}
 
 	void Engine::usermove(const std::string& input, std::string& output) {
-		Move* move = board->buildMove(input.c_str());
+		
+		if (isForceMode) {
+			if (colorOnMove == White) {
+				playerEngine = playerBlack;
+				playerUser = playerWhite;				
+			}
+			else {
+				playerEngine = playerWhite;
+				playerUser = playerBlack;
+			}
+		}
 
+		Move* move = board->buildMove(input.c_str());
 		bool executeSuccess = playerUser->executeMove(move);
 		delete move;
 
@@ -70,6 +95,9 @@ namespace chess {
 		colorOnMove = !colorOnMove;
 
 		if (isForceMode) {
+			if (isAnalyzeMode) {
+				enginemove(output);
+			}
 			output = "";			
 			return;
 		}
@@ -87,7 +115,7 @@ namespace chess {
 		//Tree* legalMoves = playerEngine->legalMoves();		
 		Tree* legalMoves = moveTree();
 
-		thinkingOutput(legalMoves);
+		//thinkingOutput(legalMoves);
 		
 		//watchMoveScores(legalMoves);
 
@@ -108,7 +136,9 @@ namespace chess {
 		//	}
 		//}
 
-		const int PBEST_MAX = 255;
+		
+		int maxMinDamage = -128;
+		/*const int PBEST_MAX = 255;
 		const int NBEST_MIN = -256;
 		int minDamage, pBest = PBEST_MAX, nBest = NBEST_MIN;
 		for (TreeNode* p1 = legalMoves->tree->right;p1; p1 = p1->right) {
@@ -125,22 +155,25 @@ namespace chess {
 			}
 		}
 		if (pBest < PBEST_MAX) {
-			minDamage = pBest;
+			maxMinDamage = pBest;
 		}
 		else {
-			minDamage = nBest;
+			maxMinDamage = nBest;
+		}	*/	
+		for (TreeNode* p1 = legalMoves->tree->right;p1; p1 = p1->right) {
+			if (maxMinDamage < p1->minCumulativeDamage) {
+				maxMinDamage = p1->minCumulativeDamage;
+			}
 		}
-
-		
 		for (TreeNode* p2 = legalMoves->tree->right;p2; p2 = p2->right) {
-			if (p2->minCumulativeDamage != minDamage) {
+			if (p2->minCumulativeDamage != maxMinDamage) {
 				p2 = legalMoves->remove(p2);
 			}
 		}
 
-		thinkingOutput(legalMoves);
+		//thinkingOutput(legalMoves);
 
-		int maxDamage = -256;
+		int maxDamage = -128;
 		for (TreeNode* p3 = legalMoves->tree->right;p3; p3 = p3->right) {
 			if (p3->maxCumulativeDamage > maxDamage) {
 				maxDamage = p3->maxCumulativeDamage;
@@ -155,26 +188,28 @@ namespace chess {
 
 		thinkingOutput(legalMoves);
 
-		if (legalMoves->length > 0) {			
-			int movePos = distribution(generator) % legalMoves->length;
-			Move* replyMove = legalMoves->getAt(movePos)->move;
+		if (!isForceMode) {
+			if (legalMoves->length > 0) {
+				int movePos = distribution(generator) % legalMoves->length;
+				Move* replyMove = legalMoves->getAt(movePos)->move;
 
-			playerEngine->executeMove(replyMove);
-			output = "move " + replyMove->toLAN();
-			colorOnMove = !colorOnMove;
-		}
-		else {	
-			if (playerEngine->isKingInCheck()) {
-				if (playerEngine == playerWhite) {
-					output = "0-1 { Checkmate }";
-				}
-				else {
-					output = "1-0 { Checkmate }";
-				}
+				playerEngine->executeMove(replyMove);
+				output = "move " + replyMove->toLAN();
+				colorOnMove = !colorOnMove;
 			}
 			else {
-				output = "1/2-1/2 { Stalemate }";
-			}			
+				if (playerEngine->isKingInCheck()) {
+					if (playerEngine == playerWhite) {
+						output = "0-1 { Checkmate }";
+					}
+					else {
+						output = "1-0 { Checkmate }";
+					}
+				}
+				else {
+					output = "1/2-1/2 { Stalemate }";
+				}
+			}
 		}
 
 		delete legalMoves;
@@ -189,6 +224,7 @@ namespace chess {
 
 		executedMoveCount = 0; // just for tracking
 		treeBuildTime = 0;
+		const char SCORE_CHECKMATE = 105;
 
 		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
@@ -205,12 +241,20 @@ namespace chess {
 				depth--;
 
 				// revert move in the up, if move is valid (first node in tree is dummy, remmeber?)
-				if (availableMoves->current->move == nullptr) {
-					continue;
+				if (availableMoves->current->children->length == 0) {
+					availableMoves->current->move->score = SCORE_CHECKMATE;
+					availableMoves->updateDamage(depth);
 				}
-				if (availableMoves->current->move != nullptr) {
+				//if (availableMoves->current->move == nullptr) {
+				//	continue;
+				//}
+				//if (availableMoves->current->move != nullptr) {
 					player->revertMove(availableMoves->current->move);
-				}			
+				//}		
+										
+				delete availableMoves->current->children;
+				availableMoves->current->children = nullptr;
+					
 
 				continue;
 			}			
@@ -251,7 +295,7 @@ namespace chess {
 			depth++;
 		}	
 
-		treeBuildTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count();
+		treeBuildTime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - t1).count();
 		//std::cout << executedMoveCount << " moves executed in " << timeDiff << " milliseconds" << std::endl;
 
 		return moveTree;
@@ -275,15 +319,15 @@ namespace chess {
 
 	int Engine::thinkingOutput(Tree* legalMoves) {
 		int ply = maxTreeDepth;
-		float score = 0.0;
+		double score = legalMoves->tree->right->minCumulativeDamage * 100.0;
 		long long time = treeBuildTime;
 		long long nodes = executedMoveCount;
 		std::string pv;
-		std::cout << ply << " " << score << " " << time << " " << nodes << " " << "New Line" << std::endl;
+		//std::cout << ply << " " << score << " " << time << " " << nodes << " " << "New Line" << std::endl;
 		for (TreeNode* p0 = legalMoves->tree->right;p0; p0 = p0->right) {
 			std::stringstream ss;
 			ss << p0->move->toSAN() << " (" << (int)p0->minCumulativeDamage << ", " << (int)p0->maxCumulativeDamage << ")";
-			pv = ss.str();
+			pv = ((colorOnMove == White) ? "" : "... ") + ss.str();
 			std::cout << ply << " " << score << " " << time << " " << nodes << " " << pv << std::endl;
 		}
 		return 0;

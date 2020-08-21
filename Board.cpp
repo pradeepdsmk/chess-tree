@@ -109,6 +109,8 @@ namespace chess {
 
 		CASTLE_FLAGS = 0x0;
 
+		colorToPlay = (*c == 'w');
+
 		// to-do: identify color to play from the fen
 		return colorToPlay;
 	}
