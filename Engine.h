@@ -31,6 +31,14 @@ namespace chess {
 		void newboard();
 		void go(std::string& output);
 		void enginemove(std::string& output);
-		void force();		
+		void force();	
+
+
+		int watchMoveScores(Tree* legalMoves);
+		int thinkingOutput(Tree* legalMoves);
+
+		long long treeBuildTime;
+		unsigned long long executedMoveCount;
+		
 	};
 }

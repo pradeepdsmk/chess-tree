@@ -16,6 +16,9 @@ namespace chess {
 
         Tree* thisTree;
         Tree* children;
+        char cumulativeDamage;
+        char maxCumulativeDamage;
+        char minCumulativeDamage;
 
         TreeNode();
         TreeNode(Move* move);
@@ -28,6 +31,7 @@ namespace chess {
         TreeNode* tree;
         TreeNode* last;
         TreeNode* parent;
+        TreeNode* rootParent;
         unsigned length;
         char maxScore;
 
@@ -39,6 +43,7 @@ namespace chess {
         void add(Move* move);
         TreeNode* remove(TreeNode* p);
         TreeNode* getAt(int i);
+        void updateDamage(unsigned level);
         ~Tree();
     };    	
 }

@@ -8,6 +8,9 @@ namespace chess {
         right = nullptr;
         thisTree = nullptr; // will be set by TreeNode
         children = nullptr;
+        cumulativeDamage = 0;
+        maxCumulativeDamage = -128;
+        minCumulativeDamage = 127;
     }
     TreeNode::TreeNode(Move* _move) : TreeNode() {
         move = _move;
@@ -16,6 +19,12 @@ namespace chess {
     void TreeNode::setChildren(Tree* _children) {
         children = _children;
         children->parent = this;
+        if (this->thisTree->rootParent == nullptr) {
+            children->rootParent = this;
+        }
+        else {
+            children->rootParent = this->thisTree->rootParent;
+        }        
     }
 
     TreeNode::~TreeNode() {
@@ -36,6 +45,7 @@ namespace chess {
         tree = new TreeNode();
         last = tree;
         parent = nullptr;
+        rootParent = nullptr;
         length = 0;
         maxScore = Tree::LeastScore;
         current = tree;
@@ -113,5 +123,17 @@ namespace chess {
             p = p->right;
         }
         return p;
+    }
+
+    void Tree::updateDamage(unsigned level) {        
+        char cumulativeDamage = (parent ? parent->cumulativeDamage : 0) + current->move->score * ((level % 2) ? 1 : -1);
+        current->cumulativeDamage = cumulativeDamage;
+        TreeNode* _rootParent = rootParent ? rootParent : current;
+        if (cumulativeDamage > _rootParent->maxCumulativeDamage) {
+            _rootParent->maxCumulativeDamage = cumulativeDamage;
+        }
+        if (cumulativeDamage < _rootParent->minCumulativeDamage) {
+            _rootParent->minCumulativeDamage = cumulativeDamage;
+        }
     }
 }

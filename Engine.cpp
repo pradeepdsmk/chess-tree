@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include <iostream>
 #include <chrono>
+#include <sstream>
 
 namespace chess {
 
@@ -9,7 +10,7 @@ namespace chess {
 		playerWhite = new Player(board, White);
 		playerBlack = new Player(board, Black);
 		isForceMode = false;
-		maxTreeDepth = 4;
+		maxTreeDepth = 3;
 
 		std::random_device rd;  //Will be used to obtain a seed for the random number engine
 		generator = std::mt19937(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -86,21 +87,75 @@ namespace chess {
 		//Tree* legalMoves = playerEngine->legalMoves();		
 		Tree* legalMoves = moveTree();
 
-		short maxDamage = -200, damage;		
+		thinkingOutput(legalMoves);
+		
+		//watchMoveScores(legalMoves);
+
+		//short maxDamage = -200, damage;		
+		//for (TreeNode* p1 = legalMoves->tree->right;p1; p1 = p1->right) {
+		//	//damage = p1->move->score - p1->children->maxScore;
+		//	damage = p1->maxCumulativeDamage;
+		//	if (damage > maxDamage) {
+		//		maxDamage = damage;
+		//	}
+		//}
+
+		//for (TreeNode* p2 = legalMoves->tree->right;p2; p2 = p2->right) {
+		//	//damage = p2->move->score - p2->children->maxScore;
+		//	damage = p2->maxCumulativeDamage;
+		//	if (damage < maxDamage) {
+		//		p2 = legalMoves->remove(p2);
+		//	}
+		//}
+
+		const int PBEST_MAX = 255;
+		const int NBEST_MIN = -256;
+		int minDamage, pBest = PBEST_MAX, nBest = NBEST_MIN;
 		for (TreeNode* p1 = legalMoves->tree->right;p1; p1 = p1->right) {
-			damage = p1->move->score - p1->children->maxScore;
-			if (damage > maxDamage) {
-				maxDamage = damage;
+			minDamage = p1->minCumulativeDamage;
+			if (minDamage >= 0) {
+				if (minDamage < pBest) {
+					pBest = minDamage;
+				}
+			}
+			else {
+				if (minDamage > nBest) {
+					nBest = minDamage;					
+				}
 			}
 		}
+		if (pBest < PBEST_MAX) {
+			minDamage = pBest;
+		}
+		else {
+			minDamage = nBest;
+		}
 
+		
 		for (TreeNode* p2 = legalMoves->tree->right;p2; p2 = p2->right) {
-			damage = p2->move->score - p2->children->maxScore;
-			if (damage < maxDamage) {
+			if (p2->minCumulativeDamage != minDamage) {
 				p2 = legalMoves->remove(p2);
 			}
 		}
-		if (legalMoves->length > 0) {
+
+		thinkingOutput(legalMoves);
+
+		int maxDamage = -256;
+		for (TreeNode* p3 = legalMoves->tree->right;p3; p3 = p3->right) {
+			if (p3->maxCumulativeDamage > maxDamage) {
+				maxDamage = p3->maxCumulativeDamage;
+			}
+		}
+
+		for (TreeNode* p4 = legalMoves->tree->right;p4; p4 = p4->right) {
+			if (p4->maxCumulativeDamage != maxDamage) {
+				p4 = legalMoves->remove(p4);
+			}
+		}
+
+		thinkingOutput(legalMoves);
+
+		if (legalMoves->length > 0) {			
 			int movePos = distribution(generator) % legalMoves->length;
 			Move* replyMove = legalMoves->getAt(movePos)->move;
 
@@ -131,7 +186,9 @@ namespace chess {
 		Tree* availableMoves = player->availableMoves();
 		Tree* moveTree = availableMoves;
 		unsigned depth = 1;
-		unsigned executedMoveCount = 0; // just for tracking
+
+		executedMoveCount = 0; // just for tracking
+		treeBuildTime = 0;
 
 		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
@@ -148,6 +205,9 @@ namespace chess {
 				depth--;
 
 				// revert move in the up, if move is valid (first node in tree is dummy, remmeber?)
+				if (availableMoves->current->move == nullptr) {
+					continue;
+				}
 				if (availableMoves->current->move != nullptr) {
 					player->revertMove(availableMoves->current->move);
 				}			
@@ -163,19 +223,24 @@ namespace chess {
 
 			// find opponent moves and add them as children
 			Tree* opponentMoves = opponent->availableMoves();
-			availableMoves->current->setChildren(opponentMoves);
-
 			// if this is not a legal move, revert this move, remove it
 			if (player->isKingInCheck(opponentMoves)) {
 				player->revertMove(move);
-				//delete opponentMoves; // remove will delete entire tree
+				delete opponentMoves;
 				availableMoves->current = availableMoves->remove(availableMoves->current);
 				continue;
-			}			
+			}		
+
+			// set children only if current move is valid
+			availableMoves->current->setChildren(opponentMoves);
+
+			// update damage;
+			availableMoves->updateDamage(depth);			
 			
 			// if we can not go deep, revert move
-			if (depth == maxTreeDepth - 1) {
+			if (depth == maxTreeDepth) {
 				player->revertMove(move);
+
 				continue;
 			}			
 
@@ -186,8 +251,8 @@ namespace chess {
 			depth++;
 		}	
 
-		auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count();
-		std::cout << executedMoveCount << " moves executed in " << timeDiff << " milliseconds" << std::endl;
+		treeBuildTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count();
+		//std::cout << executedMoveCount << " moves executed in " << timeDiff << " milliseconds" << std::endl;
 
 		return moveTree;
 	}
@@ -196,5 +261,31 @@ namespace chess {
 		Player* temp = *player1;
 		*player1 = *player2;
 		*player2 = temp;
+	}
+
+	int Engine::watchMoveScores(Tree* legalMoves) {
+		std::vector<std::string> movesScoreList;
+		for (TreeNode* p0 = legalMoves->tree->right;p0; p0 = p0->right) {
+			std::stringstream ss;
+			ss << p0->move->toSAN() << " (" << (int)p0->minCumulativeDamage << ", " << (int)p0->maxCumulativeDamage << ")";
+			movesScoreList.push_back(ss.str());
+		}
+		return 0;
+	}
+
+	int Engine::thinkingOutput(Tree* legalMoves) {
+		int ply = maxTreeDepth;
+		float score = 0.0;
+		long long time = treeBuildTime;
+		long long nodes = executedMoveCount;
+		std::string pv;
+		std::cout << ply << " " << score << " " << time << " " << nodes << " " << "New Line" << std::endl;
+		for (TreeNode* p0 = legalMoves->tree->right;p0; p0 = p0->right) {
+			std::stringstream ss;
+			ss << p0->move->toSAN() << " (" << (int)p0->minCumulativeDamage << ", " << (int)p0->maxCumulativeDamage << ")";
+			pv = ss.str();
+			std::cout << ply << " " << score << " " << time << " " << nodes << " " << pv << std::endl;
+		}
+		return 0;
 	}
 }
